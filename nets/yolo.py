@@ -13,11 +13,11 @@ from collections import OrderedDict
 
 def conv2d(in_filter, out_filter, kernel_size):
     pad = (kernel_size - 1)//2 if kernel_size else 0
-    return nn.Sequential(OrderedDict[
+    return nn.Sequential(OrderedDict([
         ('conv', nn.Conv2d(in_filter, out_filter, kernel_size=kernel_size, padding=pad, bias=False)),
         ('bn', nn.BatchNorm2d(out_filter)),
         ('relu', nn.LeakyReLU(0.1)),
-    ])
+    ]))
 
 
 def make_last_layers(filters_list, in_filter, out_filter):
