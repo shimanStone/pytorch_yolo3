@@ -11,7 +11,7 @@ import torch.nn as nn
 import numpy as np
 from PIL import ImageFont, ImageDraw
 
-from .utils.utils import get_classes, get_anchors, cvtColor, resize_image, preprocess_input
+from .utils.utils import get_classes, get_anchors, cvtColor, resize_image, preprocess_input, draw_detection_image
 from .utils.utils_bbox import DecodeBox
 from .nets.yolo import YoloBody
 
@@ -95,42 +95,9 @@ class YOLO(object):
             if result[0] is None:
                 return image
 
-            top_label = np.array(result[0][:,6], dtype='int32')
-            top_conf = result[0][:,4]*result[0][:,5]
-            top_boxes = result[0][:,:4]
-            # 设置字体及边框厚度
-            font = ImageFont.truetype(font='../data/frcnn/simhei.ttf', size=np.floor(3e-2*image.size[1]+0.5).astype('int32'))
-            thickness = int(max((image.size[0]+image.size[1]) // np.mean(self.input_shape),1))
-            # 图像绘制
-            for i, c in list(enumerate(top_label)):
-                predicted_class = self.class_names[int(c)]
-                box = top_boxes[i]
-                score = top_conf[i]
+            # 绘制第一张图
+            image = draw_detection_image(image, result[0], self.classes_path, self.input_shape)
 
-                top,left,bottom,right = box
-
-                top = max(0,np.floor(top).astype('int32'))
-                left = max(0,np.floor(left).astype('int32'))
-                bottom = min(image.size[1], np.floor(bottom).astype('int32'))
-                right = min(image.size[0], np.floor(right).astype('int32'))
-
-                label = f'{predicted_class}{score:.2f}'
-                draw = ImageDraw.Draw(image)
-                label_size = draw.textsize(label, font)
-                label = label.encode('utf-8')
-                print(label,top,left,bottom,right)
-
-                if top - label_size[1] >=0:
-                    text_origin = np.array([left, top-label_size[1]])
-                else:
-                    text_origin = np.array([left, top+1])
-
-                for i in range(thickness):
-                    draw.rectangle([left+i,top+i,right-i,bottom-i], outline=self.colors[c])
-                draw.rectangle([tuple(text_origin), tuple(text_origin+label_size)], fill=self.colors[c])
-                draw.text(text_origin, str(label,'UTF-8'),fill=(0,0,0), font=font)
-
-                del draw
             return image
 
 
