@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/4/12 14:36
 # @Author  : shiman
-# @File    : yolo.py
+# @File    : yolo_detection.py
 # @describe:
 
 import torch

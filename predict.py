@@ -8,7 +8,8 @@
 
 from PIL import Image
 
-from yolo3.yolo import YOLO
+from yolo3.nets.yolo_detection import YOLO
+
 
 if __name__ == '__main__':
 
@@ -17,7 +18,7 @@ if __name__ == '__main__':
     mode = 'predict'
     crop=False
 
-    img = r'E:\ml_code\data\frcnn\street.jpg'
+    img = r'E:\ml_code\data\frcnn\VOC2007\JPEGImages\000048.jpg'
     image = Image.open(img)
     r_image = yolo.detect_image(image, crop=crop)
     r_image.show()

@@ -2,25 +2,24 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/4/12 17:51
 # @Author  : shiman
-# @File    : yolo.py
+# @File    : yolo_detection.py
 # @describe:
 
 import colorsys
 import torch
 import torch.nn as nn
 import numpy as np
-from PIL import ImageFont, ImageDraw
 
-from .utils.utils import get_classes, get_anchors, cvtColor, resize_image, preprocess_input, draw_detection_image
-from .utils.utils_bbox import DecodeBox
-from .nets.yolo import YoloBody
+from yolo3.utils.utils import get_classes, get_anchors, cvtColor, resize_image, preprocess_input, draw_detection_image
+from yolo3.utils.utils_bbox import DecodeBox
+from yolo3.nets.yolo import YoloBody
 
 class YOLO(object):
 
     _defaults = {
-        "model_path": "../data/yolo/yolo_weights_coco2017.pth",
-        'classes_path': '../data/yolo/coco_classes.txt',
-        'anchors_path': '../data/yolo/yolo_anchors.txt',
+        "model_path": ".././data/yolo/yolo_weights_coco2017.pth",
+        'classes_path': '.././data/yolo/coco_classes.txt',
+        'anchors_path': '.././data/yolo/yolo_anchors.txt',
         'anchors_mask': [[6,7,8],[3,4,5],[0,1,2]],
         'input_shape': [416,416],
         'confidence': 0.5,
