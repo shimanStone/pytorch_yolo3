@@ -15,9 +15,10 @@ from torch.utils.data import DataLoader
 
 from yolo3.utils.utils import get_classes, get_anchors
 from yolo3.nets.yolo import YoloBody
-from yolo3.nets.yolo_training import weight_init, YOLOLoss, get_lr_scheduler
+from yolo3.nets.yolo_training import weight_init, YOLOLoss, get_lr_scheduler, set_optimizer_lr
 from yolo3.utils.callbacks import LossHistory
 from yolo3.utils.dataloader import YoloDataset, yolo_dataset_collate
+from yolo3.utils.utils_fit import fit_one_epoch
 
 
 if __name__ == '__main__':
@@ -125,12 +126,11 @@ if __name__ == '__main__':
         optimizer = {
             'adma': optim.Adam(pg0, init_lr_fit, betas=(momentum, 0.999)),
             'sgd': optim.SGD(pg0, init_lr_fit, momentum=momentum, nesterov=True)
-        }
+        }[optimizer_type]
         optimizer.add_param_group({'params':pg1, 'weight_decay': weight_decay})
         optimizer.add_param_group({'params':pg2})
         # 学习率
         lr_scheduler_func = get_lr_scheduler(lr_decay_type, init_lr_fit, min_lr_fit, unfreeze_epoch)
-
         #
         epoch_step, epoch_step_val = num_train // batch_size, num_val // batch_size
 
@@ -149,8 +149,44 @@ if __name__ == '__main__':
         # 开始进行模型训练
         for epoch in range(init_epoch, unfreeze_epoch):
 
-            if epoch >= freeze_epoch and not unfreeze_flag and freeze_train:
+            if epoch < freeze_epoch:
+
+                set_optimizer_lr(optimizer, lr_scheduler_func, epoch)
+                fit_one_epoch(model_train, model, yolo_loss, loss_history, optimizer, epoch, epoch_step, epoch_step_val,
+                              gen, gen_val, unfreeze_epoch, Cuda, fp16, scaler, save_period, save_dir, 0)
+            else:
                 batch_size = unfreeze_batch_size
+                # 根据batch_size 自适应调整学习率
+                nbs = 64
+                lr_limit_max = 0.001 if optimizer_type == 'adam' else 0.05
+                lr_limit_min = 0.0003 if optimizer_type == 'adam' else 0.0005
+                init_lr_fit = min(max(batch_size / nbs * init_lr, lr_limit_min), lr_limit_max)
+                min_lr_fit = min(max(batch_size / nbs * min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+
+                lr_scheduler_func = get_lr_scheduler(lr_decay_type, init_lr_fit, min_lr_fit, unfreeze_epoch)
+                #
+                epoch_step, epoch_step_val = num_train // batch_size, num_val // batch_size
+                if epoch_step == 0 or epoch_step_val == 0:
+                    raise ValueError('dataset numbers 过小，请扩充数据')
+                #
+                gen = DataLoader(train_dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers,
+                                 pin_memory=True, drop_last=True, collate_fn=yolo_dataset_collate)
+                gen_val = DataLoader(val_dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers,
+                                     pin_memory=True, drop_last=True, collate_fn=yolo_dataset_collate)
+                #
+                for param in model.backbone.parameters():
+                    param.requires_grad = True
+                #
+                set_optimizer_lr(optimizer, lr_scheduler_func, epoch)
+                fit_one_epoch(model_train, model, yolo_loss, loss_history, optimizer, epoch, epoch_step, epoch_step_val,
+                              gen, gen_val, unfreeze_epoch, Cuda, fp16, scaler, save_period, save_dir, 0)
+
+        loss_history.writer.close()
+
+
+
+
+
 
 
 

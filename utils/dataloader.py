@@ -39,8 +39,8 @@ class YoloDataset(Dataset):
             box[:,[0,2]] = box[:,[0,2]] / self.input_shape[1]
             box[:,[1,3]] = box[:,[1,3]] / self.input_shape[0]
 
-            box[:,[2,3]] = box[:,[2,3]] - box[:, [0,1]]
-            box[:,[0,1]] = box[:,[0,1]] + box[:,[2.3]] /2
+            box[:,[2,3]] = box[:,[2,3]] - box[:,[0,1]]
+            box[:,[0,1]] = box[:,[0,1]] + box[:,[2,3]] /2
         return image, box
 
 
