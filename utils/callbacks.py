@@ -70,7 +70,7 @@ class LossHistory():
         plt.savefig(f'{self.log_dir}/epoch_loss.png')
 
         plt.cla()
-        plt.close(all)
+        plt.close('all')
 
 
 
