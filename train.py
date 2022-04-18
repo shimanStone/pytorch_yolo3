@@ -6,6 +6,19 @@
 # @describe:
 
 import os
+import warnings
+warnings.filterwarnings("ignore")
+
+import sys
+
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(cur_dir)
+print(f'cur_dir: {cur_dir}')
+
+sys.path.append(os.path.abspath(cur_dir))
+sys.path.append(os.path.abspath(root_dir))
+print(sys.path)
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -13,24 +26,24 @@ import numpy as np
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 
-from yolo3.utils.utils import get_classes, get_anchors
-from yolo3.nets.yolo import YoloBody
-from yolo3.nets.yolo_training import weight_init, YOLOLoss, get_lr_scheduler, set_optimizer_lr
-from yolo3.utils.callbacks import LossHistory
-from yolo3.utils.dataloader import YoloDataset, yolo_dataset_collate
-from yolo3.utils.utils_fit import fit_one_epoch
+from pytorch_yolo3.utils.utils import get_classes, get_anchors
+from pytorch_yolo3.nets.yolo import YoloBody
+from pytorch_yolo3.nets.yolo_training import weight_init, YOLOLoss, get_lr_scheduler, set_optimizer_lr
+from pytorch_yolo3.utils.callbacks import LossHistory
+from pytorch_yolo3.utils.dataloader import YoloDataset, yolo_dataset_collate
+from pytorch_yolo3.utils.utils_fit import fit_one_epoch
 
 
 if __name__ == '__main__':
     Cuda = False
     fp16 = False # 是否混合精度训练
     #
-    classes_path = r'E:\ml_code\data\frcnn\voc_classes.txt'
+    classes_path = f'{cur_dir}/data/voc_classes.txt'
     #
-    anchor_path = r'E:\ml_code\data\yolo\yolo_anchors.txt'
+    anchor_path = f'{cur_dir}/data/yolo_anchors.txt'
     anchor_mask = [[6,7,8],[3,4,5],[0,1,2]]
     #
-    model_path = r'E:\ml_code\data\yolo\yolo_weights_coco2017.pth'
+    model_path = f'{cur_dir}/data/yolo_weights_coco2017.pth'
     input_shape = [416,416]  # 32的倍数
 
     # 是否使用主干网络预训练权重，model_path != '',则该参数无效
@@ -54,13 +67,18 @@ if __name__ == '__main__':
     # 学习率下降方法
     lr_decay_type = 'cos'  # cos / step
     # 多少个epoch保存一次权重
-    save_period = 1
+    save_period = 4
     #
     save_dir = 'logs'
     #  多线程
     num_workers = 2
     #
-    train_annotation_path, val_annotation_path = '2007_train.txt', '2007_val.txt'
+    # 图片和标签路径
+    if Cuda:
+        train_annotation_path, val_annotation_path = '2007_train_colab.txt', '2007_val_colab.txt'
+    else:
+        train_annotation_path, val_annotation_path = '2007_train.txt', '2007_val.txt'
+    # train_annotation_path, val_annotation_path = '2007_train.txt', '2007_val.txt'
     # 获取分类信息和anchor
     class_names, num_classes = get_classes(classes_path)
     anchors, num_anchors = get_anchors(anchor_path)

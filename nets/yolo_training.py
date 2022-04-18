@@ -246,7 +246,7 @@ class YOLOLoss(nn.Module):
         if self.cuda:
             y_true = y_true.type_as(x)
             noobj_mask = noobj_mask.type_as(x)
-            box_loss_scale = box_loss_scale.type(x)
+            box_loss_scale = box_loss_scale.type_as(x)
         #
         box_loss_scale = 2 - box_loss_scale
         #
