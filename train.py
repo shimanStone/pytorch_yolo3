@@ -200,19 +200,3 @@ if __name__ == '__main__':
                               gen, gen_val, unfreeze_epoch, Cuda, fp16, scaler, save_period, save_dir, 0)
 
         loss_history.writer.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
