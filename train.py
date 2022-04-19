@@ -35,7 +35,7 @@ from pytorch_yolo3.utils.utils_fit import fit_one_epoch
 
 
 if __name__ == '__main__':
-    Cuda = False
+    Cuda = True if torch.cuda.is_available() else False
     fp16 = False # 是否混合精度训练
     #
     classes_path = f'{cur_dir}/data/voc_classes.txt'
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         weight_init(model)
     if os.path.exists(model_path):
         print(f'load weights {model_path}')
-        device = torch.device('Cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model_dict = model.state_dict()
         pretrained_dict = torch.load(model_path, map_location=device)
         pretrained_dict = {k:v for k,v in pretrained_dict.items() if np.shape(model_dict[k]) == np.shape(v)}
