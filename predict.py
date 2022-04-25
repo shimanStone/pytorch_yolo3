@@ -8,7 +8,7 @@
 
 from PIL import Image
 
-from yolo3.nets.yolo_detection import YOLO
+from pytorch_yolo3.nets.yolo_detection import YOLO
 
 
 if __name__ == '__main__':

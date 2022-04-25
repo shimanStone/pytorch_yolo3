@@ -43,6 +43,8 @@ class BasicBlock(nn.Module):
         return out
 
 class DarkNet(nn.Module):
+    """Darknet53结构，一系列残差网络结构构成，由一次下采样和多次残差结构堆叠"""
+
     def __init__(self, layers):
         super(DarkNet, self).__init__()
 

@@ -10,9 +10,9 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from yolo3.utils.utils import get_classes, get_anchors, cvtColor, resize_image, preprocess_input, draw_detection_image
-from yolo3.utils.utils_bbox import DecodeBox
-from yolo3.nets.yolo import YoloBody
+from pytorch_yolo3.utils.utils import get_classes, get_anchors, cvtColor, resize_image, preprocess_input, draw_detection_image
+from pytorch_yolo3.utils.utils_bbox import DecodeBox
+from pytorch_yolo3.nets.yolo import YoloBody
 
 class YOLO(object):
 
